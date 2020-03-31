@@ -7,6 +7,7 @@ authors = ["Norbert Cyran <norbert@ulam.io>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 google-cloud-storage = "^1.26.0"
+pyyaml = "^5.3.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
