@@ -8,6 +8,29 @@ import yaml
 from google.cloud import storage
 
 from .bucket import get_mlab_bucket
+from .db import Session
+from .models import TestResult
+
+
+def populate_db() -> None:
+    """Populate DB with data from cloud."""
+    session = Session()
+
+    bucket = get_mlab_bucket()
+    results = []
+
+    blobs = bucket.list_blobs(prefix='ooni')
+
+    for blob in blobs:
+        results.extend([
+            _get_test_result_from_record(record)
+            for record in _parse_blob(blob)
+            if 'tampering' in record
+        ])
+
+    session.bulk_save_objects(results)
+    session.commit()
+    session.close()
 
 
 def fetch_all_ooni_data() -> Dict[str, List[Dict]]:
@@ -51,3 +74,35 @@ def _parse_blob(blob: storage.Blob) -> List[dict]:
         data.append(test_result)
 
     return data
+
+
+def _get_test_result_from_record(record):
+    return TestResult(
+        country_code=record['probe_cc'],
+        total_tampered=record['tampering'].get('total', False),
+        header_field_name_tampered=record['tampering'].get(
+            'header_field_name',
+            False
+        ),
+        header_field_number_tampered=record['tampering'].get(
+            'header_field_number',
+            False
+        ),
+        header_field_value_tampered=record['tampering'].get(
+            'header_field_value',
+            False
+        ),
+        header_name_capitalization_tampered=record['tampering'].get(
+            'header_name_capitalization',
+            False
+        ),
+        header_name_diff=','.join(record['tampering'].get(
+            'header_name_diff',
+            []
+        )),
+        request_line_capitalization_tampered=record['tampering'].get(
+            'request_line_capitalization',
+            False
+        ),
+        start_time=datetime.datetime.fromtimestamp(record['start_time'])
+    )
