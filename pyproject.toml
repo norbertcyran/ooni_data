@@ -2,7 +2,7 @@
 name = "pamsi_ooni"
 version = "0.1.0"
 description = ""
-authors = ["Norbert Cyran <norbert@ulam.io>"]
+authors = ["Norbert Cyran <cyran.norbert97@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
