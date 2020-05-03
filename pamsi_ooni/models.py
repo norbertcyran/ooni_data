@@ -15,4 +15,5 @@ class TestResult(Base):
     header_field_value_tampered = Column(Boolean, default=False)
     header_name_capitalization_tampered = Column(Boolean, default=False)
     header_name_diff = Column(Text, default='')
+    request_line_capitalization_tampered = Column(Boolean, default=False)
     start_time = Column(DateTime)
