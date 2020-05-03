@@ -19,7 +19,7 @@ def fetch_all_ooni_data() -> Dict[str, List[Dict]]:
 
     for blob in blobs:
         date = '/'.join(blob.name.split('/')[-4:-1])
-        data[date].append(_parse_blob(blob))
+        data[date].extend(_parse_blob(blob))
 
     return data
 
@@ -38,14 +38,16 @@ def fetch_ooni_from_date(date: datetime.date) -> List[dict]:
 
 
 def _parse_blob(blob: storage.Blob) -> List[dict]:
-    """Parse single archive into list of dict."""
+    """Parse single archive into list of dicts."""
     stream = BytesIO(blob.download_as_string())
     tar = tarfile.open(fileobj=stream)
 
-    data = [
-        record
-        for data_file in tar.getmembers()
-        for record in yaml.load_all(tar.extractfile(data_file), Loader=yaml.CLoader)
-    ]
+    data = []
+    for data_file in tar.getmembers():
+        test_result = {}
+        for record in yaml.load_all(tar.extractfile(data_file), Loader=yaml.CLoader):
+            if record:
+                test_result.update(record)
+        data.append(test_result)
 
     return data
